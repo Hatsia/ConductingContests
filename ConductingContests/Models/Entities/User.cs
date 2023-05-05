@@ -5,9 +5,6 @@ namespace ConductingContests.Models.Entities
 {
     public class User : IdentityUser
     {
-        public string Name { get; set; }
-
-
         public List<Contest> Contests { get; set; }
 
         public List<ParticipationRequest> Participationrequest { get; set; }
