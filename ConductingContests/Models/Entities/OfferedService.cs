@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ConductingContests.Models.Entities
 {
@@ -9,9 +9,10 @@ namespace ConductingContests.Models.Entities
 
         public string Name { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
 
-        public IFormFile File { get; set; }
+        public string FilePath { get; set; }
 
 
         [DataType(DataType.MultilineText)]
