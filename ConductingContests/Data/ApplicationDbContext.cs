@@ -25,6 +25,7 @@ namespace ConductingContests.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            
             builder.Entity<Contest>()
                 .Property(x => x.Status)
                 .HasConversion<string>();
