@@ -7,22 +7,30 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ConductingContests.Data;
 using ConductingContests.Models.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace ConductingContests.Controllers
 {
     public class ContestsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<User> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public ContestsController(ApplicationDbContext context)
+        public ContestsController(ApplicationDbContext context, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
         {
             _context = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         // GET: Contests
         public async Task<IActionResult> Index()
         {
             var applicationDbContext = _context.Contests.Include(c => c.Category).Include(c => c.User);
+
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -47,10 +55,10 @@ namespace ConductingContests.Controllers
         }
 
         // GET: Contests/Create
+        //[Authorize(Roles = "Admin, Organizer")]
         public IActionResult Create()
         {
             ViewData["CategoryId"] = new SelectList(_context.ContestCategories, "Id", "Id");
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
             return View();
         }
 
@@ -59,14 +67,18 @@ namespace ConductingContests.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Description,StartDate,EndDate,Status,WinnerUserId,UserId,CategoryId")] Contest contest)
+        [Authorize]
+        public async Task<IActionResult> Create([Bind("Id,Title,Description,StartDate,EndDate,CategoryId")] Contest contest)
         {
             if (ModelState.IsValid)
             {
+                contest.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 _context.Add(contest);
+
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["CategoryId"] = new SelectList(_context.ContestCategories, "Id", "Id", contest.CategoryId);
             ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", contest.UserId);
             return View(contest);
@@ -95,7 +107,7 @@ namespace ConductingContests.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,StartDate,EndDate,Status,WinnerUserId,UserId,CategoryId")] Contest contest)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,StartDate,EndDate,Status,WinnerUserName,UserId,CategoryId")] Contest contest)
         {
             if (id != contest.Id)
             {
