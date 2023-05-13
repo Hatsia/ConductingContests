@@ -1,78 +1,194 @@
-﻿@model IEnumerable<ConductingContests.Models.Entities.Contest>
+﻿@using Microsoft.AspNetCore.Identity
+@using ConductingContests.Models.Entities;
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+@model IEnumerable<ConductingContests.Models.Entities.Contest>
 
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.StartDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.EndDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.WinnerUserName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Category)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StartDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EndDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.WinnerUserName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Category.Id)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+
+@if (User.IsInRole("Admin"))
+{
+    <h1>Управление конкурсами(администратор)</h1>
+    <hr />
+    <p>
+        <a class="btn btn-success" asp-action="Create">Создать новый конкурс</a>
+    </p>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Название конкурса
+                </th>
+                <th>
+                    Дата начала
+                </th>
+                <th>
+                    Дата окончания
+                </th>
+                <th>
+                    Статус
+                </th>
+                <th>
+                    Создано
+                </th>
+                <th>
+                    Категория
+                </th>
+                <th>
+                    Действие
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Title)
+                    </td>
+                    <td>
+                        @item.StartDate.ToString("dd.MM.yyyy HH:mm")
+                    </td>
+                    <td>
+                        @item.EndDate.ToString("dd.MM.yyyy HH:mm")
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Status)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.User.UserName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Category.Name)
+                    </td>
+                    <td>
+                        <a class="btn btn-primary" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                        <a class="btn btn-primary" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                        <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
-    </tbody>
-</table>
+else if (User.IsInRole("Organizer"))
+{
+    <h1>Управление конкурсами(организатор)</h1>
+    <hr />
+    <p>
+        <a class="btn btn-success" asp-action="Create">Создать новый конкурс</a>
+    </p>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Название конкурса
+                </th>
+                <th>
+                    Дата начала
+                </th>
+                <th>
+                    Дата окончания
+                </th>
+                <th>
+                    Статус
+                </th>
+                <th>
+                    Категория
+                </th>
+                <th>
+                    Действие
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Title)
+                    </td>
+                    <td>
+                        @item.StartDate.ToString("dd.MM.yyyy HH:mm")
+                    </td>
+                    <td>
+                        @item.EndDate.ToString("dd.MM.yyyy HH:mm")
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Status)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Category.Name)
+                    </td>
+                    <td>
+                        <a class="btn btn-primary" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                        <a class="btn btn-primary" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                        <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else if (User.IsInRole("Basic"))
+{
+    <h1>Конкурсы</h1>
+    <hr/>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Название конкурса
+                </th>
+                <th>
+                    Дата начала
+                </th>
+                <th>
+                    Дата окончания
+                </th>
+                <th>
+                    Статус
+                </th>
+                <th>
+                    Категория
+                </th>
+                <th>
+                    Действие
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Title)
+                    </td>
+                    <td>
+                        @item.StartDate.ToString("dd.MM.yyyy HH:mm")
+                    </td>
+                    <td>
+                        @item.EndDate.ToString("dd.MM.yyyy HH:mm")
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Status)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Category.Name)
+                    </td>
+                    <td>
+                        <a class="btn btn-primary" asp-action="Edit" asp-route-id="@item.Id">Подать заявку</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
