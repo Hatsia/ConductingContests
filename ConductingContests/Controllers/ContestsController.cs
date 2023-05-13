@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using ConductingContests.Data;
 using ConductingContests.Models.Entities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 
 namespace ConductingContests.Controllers
@@ -30,6 +27,11 @@ namespace ConductingContests.Controllers
         public async Task<IActionResult> Index()
         {
             var applicationDbContext = _context.Contests.Include(c => c.Category).Include(c => c.User);
+            if (User.IsInRole("Organizer"))
+            {
+                var currentUser = await _userManager.GetUserAsync(User);
+                applicationDbContext = _context.Contests.Where(x => x.User == currentUser).Include(c => c.Category).Include(c => c.User);
+            }
 
             return View(await applicationDbContext.ToListAsync());
         }
@@ -58,7 +60,7 @@ namespace ConductingContests.Controllers
         //[Authorize(Roles = "Admin, Organizer")]
         public IActionResult Create()
         {
-            ViewData["CategoryId"] = new SelectList(_context.ContestCategories, "Id", "Id");
+            ViewData["CategoryId"] = new SelectList(_context.ContestCategories, "Id", "Name");
             return View();
         }
 
@@ -67,20 +69,33 @@ namespace ConductingContests.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
         public async Task<IActionResult> Create([Bind("Id,Title,Description,StartDate,EndDate,CategoryId")] Contest contest)
         {
+            var result = contest.EndDate.CompareTo(contest.StartDate);
+
+            if (result == 0 || result < 0)
+            {
+                ViewData["StartDate"] = "Choose the correct date";
+                ViewData["EndDate"] = "Change the date";
+                ViewData["CategoryId"] = new SelectList(_context.ContestCategories, "Id", "Id", contest.CategoryId);
+                ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", contest.UserId);
+                
+                return View(contest);
+            }
+
             if (ModelState.IsValid)
             {
                 contest.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                _context.Add(contest);
 
+                await _context.Contests.AddAsync(contest);
                 await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
 
             ViewData["CategoryId"] = new SelectList(_context.ContestCategories, "Id", "Id", contest.CategoryId);
             ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", contest.UserId);
+
             return View(contest);
         }
 
