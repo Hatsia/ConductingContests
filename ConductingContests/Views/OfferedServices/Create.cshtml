@@ -11,7 +11,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
@@ -25,16 +25,17 @@
             </div>
             <div class="form-group">
                 <label asp-for="FilePath" class="control-label"></label>
-                <input asp-for="FilePath" class="form-control" />
-                <span asp-validation-for="FilePath" class="text-danger"></span>
+                <input name="file" type="file" class="form-control" accept=".docs,.doc,.pdf,.txt"/>
+                <span asp-validation-for="FilePath" class="text-danger">@ViewBag.FileSize</span>
+
             </div>
             <div class="form-group">
                 <label asp-for="Description" class="control-label"></label>
                 <textarea asp-for="Description" class="form-control"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-            <input asp-for="UserId" type="hidden" value="@ViewBag.UserId" />
-            <input asp-for="ContestId" type="hidden" value="@ViewBag.ContestId" />
+                <input asp-for="UserId" type="hidden" value="@ViewBag.UserId" />
+                <input asp-for="ContestId" type="hidden" value="@ViewBag.ContestId" />
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
