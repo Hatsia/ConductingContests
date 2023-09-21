@@ -1,0 +1,49 @@
+﻿@{
+    ViewData["Title"] = "Контакты";
+}
+<h1>@ViewData["Title"]</h1>
+
+<p>Добро пожаловать на страницу контактов! Мы всегда рады помочь вам.</p>
+
+<h2>Наши контактные данные:</h2>
+<ul>
+    <li>Адрес: г. Минск, ул. Уличная, д. 1</li>
+    <li>График работы: пн-пт, с 9:00 до 18:00</li>
+    <li>Телефон: <a href="tel:+375291234567">+375 29 1234567</a></li>
+    <li>Для вопросов: <a href="mailto:support@serviceсo.com">support@serviceсo.com</a></li>
+    <li>Отдел продаж: <a href="mailto:sales@serviceсo.com">sales@serviceсo.com</a></>
+    <li>Вакансии: <a href="mailto:job@serviceсo.com">job@serviceсo.com</a></li>
+</ul>
+
+<h2>Свяжитесь с нами:</h2>
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Contact" method="post" asp-controller="Home">
+            <div class="form-group">
+                <label for="name">Имя:</label>
+                <input class="form-control"  type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Электронная почта:</label>
+                <input class="form-control"  type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="message">Сообщение:</label>
+                <textarea class="form-control" id="message" name="message" required></textarea>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Отправить" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+        
+
+<p>Если у вас есть какие-либо вопросы или предложения, не стесняйтесь связаться с нами. Мы ответим вам в ближайшее время.</p>
+
+<h2>Дополнительные контакты:</h2>
+<ul>
+    <li><a href="https://www.facebook.com/example">Facebook</a></li>
+    <li><a href="https://twitter.com/example">Twitter</a></li>
+    <li><a href="https://www.instagram.com/example">Instagram</a></li>
+</ul>
