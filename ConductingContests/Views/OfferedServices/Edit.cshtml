@@ -1,0 +1,49 @@
+﻿@model ConductingContests.Models.Entities.OfferedService
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Редактирование</h1>
+
+<h4>Предложение</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger">Отредактируйте ваши условия</div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Name" class="control-label">Заголовок предложения</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Price" class="control-label">Предлагаемая вами цена</label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FilePath" class="control-label">Добавьте файл, с описанием вашей услуги</label>
+                <input name="file" type="file" class="form-check" accept=".docs,.doc,.pdf,.txt" />
+                <span asp-validation-for="FilePath" class="text-danger">@ViewBag.FileSize</span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label">Введите краткое описание</label>
+                <textarea asp-for="Description" class="form-control"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <input asp-for="UserId" type="hidden" value="@ViewBag.UserId" />
+            <input asp-for="ContestId" type="hidden" value="@ViewBag.ContestId" />
+            <div class="form-group">
+                <input type="submit" value="Сохранить" class="btn btn-primary" />
+                <a class="btn btn-outline-primary" asp-action="Index" asp-controller="Contests">Вернуться к списку</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,112 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using ConductingContests.Models.Entities;
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+@model ConductingContests.Models.Entities.OfferedService
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Детали</h1>
+
+
+
+@if (User.IsInRole("Admin") || User.IsInRole("Organizer"))
+{
+    <div>
+        <h4>Предложение</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-2">
+                Имя участника:
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.User.UserName)
+            </dd>
+            <dt class="col-sm-2">
+                Название :
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Name)
+            </dd>
+            <dt class="col-sm-2">
+                Цена:
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Price)
+            </dd>
+            <dt class="col-sm-2">
+                Описание:
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Description)
+            </dd>
+            <dt class="col-sm-2">
+                Название конкурса:
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Contest.Title)
+            </dd>
+            <dt class="col-sm-2">
+                Презентация
+            </dt>
+            <dd class="col-sm-10">
+                <a href="@Url.Action("DownloadFile", "OfferedServices", new { filePath = Model.FilePath })" class="btn btn-primary">Скачать файл</a>
+            </dd>
+        </dl>
+    </div>
+    <div >
+        <a class="btn btn-outline-primary" href="@Context.Request.Headers["Referer"]">Назад</a>
+    </div>
+}
+@if (User.IsInRole("Basic"))
+{
+    <div>
+        <h4>Предложение</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-2">
+                Название:
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Name)
+            </dd>
+            <dt class="col-sm-2">
+                Цена:
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Price)
+            </dd>
+            <dt class="col-sm-2">
+                Путь до файла
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.FilePath)
+            </dd>
+            <dt class="col-sm-2">
+                Описание:
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Description)
+            </dd>
+            <dt class="col-sm-2">
+                Id создателя:
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.User.Id)
+            </dd>
+            <dt class="col-sm-2">
+                Id конкурса:
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Contest.Id)
+            </dd>
+        </dl>
+    </div>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+        <a asp-action="Index">Back to List</a>
+    </div>
+}
