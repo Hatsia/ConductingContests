@@ -120,7 +120,7 @@ namespace ConductingContests.Controllers
             var currentUserId = _userManager.GetUserId(User);
             var offeredService = _context.OfferedServices.FirstOrDefault(os => os.UserId == currentUserId && os.ContestId == Id);
 
-            var offeredService = await _context.OfferedServices.FindAsync(id);
+            //var offeredService = await _context.OfferedServices.FindAsync(id);
             if (offeredService == null)
             {
                 return NotFound();
@@ -169,7 +169,7 @@ namespace ConductingContests.Controllers
                     // Handle invalid file size here
                     ViewData["FileSize"] = "Choose the correct file, filesize should be lower than 10 Mb";
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "Contests");
             }
             ViewData["ContestId"] = offeredService.ContestId;
             ViewData["UserId"] = _userManager.GetUserId(User);
