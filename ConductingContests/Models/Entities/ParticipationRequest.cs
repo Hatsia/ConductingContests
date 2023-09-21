@@ -9,7 +9,7 @@ namespace ConductingContests.Models.Entities
 
 		public DateTime SubmissionDate { get; set; }
 
-		public StatusRequest Status { get; set; }
+		public StatusRequest? Status { get; set; }
 
 
 		public string UserId { get; set; }
