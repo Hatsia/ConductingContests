@@ -68,9 +68,12 @@
                         @Html.DisplayFor(modelItem => item.Category.Name)
                     </td>
                     <td>
-                        <a class="btn btn-primary" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                        <a class="btn btn-primary" asp-action="Details" asp-route-id="@item.Id">Details</a>
-                        <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                        <div class="d-flex justify-content-between">
+                            <a class="btn btn-primary mr-1" asp-action="Edit" asp-route-id="@item.Id">Редактировать</a>
+                            <a class="btn btn-primary mr-1" asp-action="Details" asp-route-id="@item.Id">Детали</a>
+                            <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+                        </div>
+                        
                     </td>
                 </tr>
             }
@@ -128,9 +131,22 @@ else if (User.IsInRole("Organizer"))
                         @Html.DisplayFor(modelItem => item.Category.Name)
                     </td>
                     <td>
-                        <a class="btn btn-primary" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                        <a class="btn btn-primary" asp-action="Details" asp-route-id="@item.Id">Details</a>
-                        <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                        @if (item.Status == StatusContest.End)
+                        {
+                            <a class="btn btn-primary" asp-action="Details" asp-route-id="@item.Id">Детали</a>
+                        }
+                        else if (item.Status == StatusContest.Closed)
+                        {
+
+                        }
+                        else
+                        {
+                            <div class="d-flex justify-content-between">
+                                <a class="btn btn-primary mr-1" asp-action="Edit" asp-route-id="@item.Id">Редактировать</a>
+                                <a class="btn btn-primary mr-1" asp-action="Details" asp-route-id="@item.Id">Детали</a>
+                                <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+                            </div>
+                        }
                     </td>
                 </tr>
             }
@@ -170,6 +186,166 @@ else if (User.IsInRole("Basic"))
         <tbody>
             @foreach (var item in Model)
             {
+                if (item != null)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Title)
+                        </td>
+                        <td>
+                            @item.StartDate.ToString("dd.MM.yyyy HH:mm")
+                        </td>
+                        <td>
+                            @item.EndDate.ToString("dd.MM.yyyy HH:mm")
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Status)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Category.Name)
+                        </td>
+                        <td>
+                            @{
+                                var currentUser = await UserManager.GetUserAsync(User);
+
+                                if (item.ParticipationRequest == null)
+                                {
+                                    @("Ожидание")
+                                }
+                                else
+                                {
+                                    @Html.DisplayFor(modelItem => item.ParticipationRequest.FirstOrDefault(pr => pr.User == currentUser).Status)
+                                }
+                            }
+                        </td>
+                        <td>
+                            @{
+
+                                var isHaveOfferedService = item.OfferedService.Exists(o => o.User == currentUser);
+                                var participationRequest = item.ParticipationRequest.Find(pr => pr.User == currentUser)?.Status;
+
+                                if (item.ParticipationRequest == null)
+                                {
+                                    <form asp-controller="ParticipationRequests" asp-action="Apply" method="post">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button class="btn btn-primary" type="submit">Подать заявку</button>
+                                    </form>
+                                }
+                                else if (item.WinnerUserName != null)
+                                {
+                                    string modalId = "modal-" + Guid.NewGuid().ToString("N");
+
+                                    if (item.WinnerUserName == currentUser.UserName)
+                                    {
+                                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#@modalId">Показать результат</button>
+                                        <div class="modal fade" id="@modalId" tabindex="-1" role="dialog" aria-labelledby="winnerModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="winnerModalLabel">Поздравляем!</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Вы победили в конкурсе! Пожалуйста, свяжитесь с организатором для получения дополнительной информации:
+                                                        <p>Email организатора: @item.User.UserName</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#@modalId" >Показать результат</button>
+                                        <div class="modal fade" id="@modalId" tabindex="-1" role="dialog" aria-labelledby="winnerModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="winnerModalLabel">Конкурс закончился!</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        К сожалению вы не победили в конкурсе. Участвуйте в других конкурсах.
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                                else if (isHaveOfferedService)
+                                {
+                                    <a class="btn btn-primary" asp-controller="OfferedServices" asp-action="Edit" asp-route-id="@item.Id">Редактировать условия</a>
+                                }
+                                else
+                                {
+                                    if (participationRequest == StatusRequest.Pending)
+                                    {
+                                        <button class="btn btn-warning" disabled>Ожидание</button>
+                                    }
+                                    else if (participationRequest == StatusRequest.Accepted)
+                                    {
+                                        <a class="btn btn-success" asp-controller="OfferedServices" asp-action="Create" asp-route-id="@item.Id">Подать условия</a> //TODO(my): Add method OfferService to OfferedService controller
+                                    }
+                                    else if (participationRequest == StatusRequest.Rejected)
+                                    {
+                                        <button class="btn btn-danger" disabled>Отклонено</button>
+                                    }
+                                    else
+                                    {
+                                        <form asp-controller="ParticipationRequests" asp-action="Apply" method="post">
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <button class="btn btn-primary" type="submit">Подать заявку</button>
+                                        </form>
+                                    }
+                                }
+
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <h1>Конкурсы</h1>
+    <br />
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Название конкурса
+                </th>
+                <th>
+                    Дата начала
+                </th>
+                <th>
+                    Дата окончания
+                </th>
+                <th>
+                    Статус
+                </th>
+                <th>
+                    Категория
+                </th>
+                <th>
+                    Действие
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
                 <tr>
                     <td>
                         @Html.DisplayFor(modelItem => item.Title)
@@ -187,76 +363,10 @@ else if (User.IsInRole("Basic"))
                         @Html.DisplayFor(modelItem => item.Category.Name)
                     </td>
                     <td>
-                        @{
-                            var currentUser = await UserManager.GetUserAsync(User);
-
-                            if (item.ParticipationRequest == null)
-                            {
-                                @("Ожидание")
-                            }
-                            else
-                            {
-                                @Html.DisplayFor(modelItem => item.ParticipationRequest.FirstOrDefault(pr => pr.User == currentUser).Status)
-                            }
-                        }
-                    </td>
-                    <td>
-                        @{
-                            var usercure = UserManager.GetUserId(User);
-
-                            if (item.ParticipationRequest == null)
-                            {
-                                <form asp-controller="ParticipationRequests" asp-action="Apply" method="post">
-                                    <input type="hidden" name="id" value="@item.Id" />
-                                    <button class="btn btn-primary" type="submit">Подать заявку</button>
-                                </form>
-                            }
-                            else
-                            {
-                                StatusRequest? participationRequest = item.ParticipationRequest.FirstOrDefault(pr => pr.User == currentUser).Status;
-                                if (participationRequest.HasValue && participationRequest.Value == StatusRequest.Pending)
-                                {
-                                    <button class="btn btn-warning" disabled>Ожидание</button>
-                                }
-                                else if (participationRequest.HasValue && participationRequest.Value == StatusRequest.Accepted)
-                                {
-                                    <a class="btn btn-primary" asp-controller="OfferedServices" asp-action="Create" asp-route-id="@item.Id">Подать условия</a> //TODO(my): Add method OfferService to OfferedService controller
-                                }
-                                else if (participationRequest.HasValue && participationRequest.Value == StatusRequest.Rejected)
-                                {
-                                    <button class="btn btn-danger" disabled>Отклонено</button>
-                                }
-                                else
-                                {
-                                    <form asp-controller="ParticipationRequests" asp-action="Apply" method="post">
-                                        <input type="hidden" name="id" value="@item.Id" />
-                                        @if (participationRequest == StatusRequest.Pending)
-                                        {
-                                            <button class="btn btn-primary" type="submit">Отменить заявку</button>
-                                        }
-                                        else if (participationRequest == StatusRequest.Accepted)
-                                        {
-                                            <a class="btn btn-success" asp-action="EditConditions" asp-route-id="@item.Id">Подать условия</a>
-                                        }
-                                        else if (participationRequest == StatusRequest.Rejected)
-                                        {
-                                            <button class="btn btn-secondary" disabled>Отклонено</button>
-                                        }
-                                        else
-                                        {
-                                            <button class="btn btn-primary" type="submit">Подать заявку</button>
-                                        }
-                                    </form>
-                                }
-                            }
-                        }
+                        <a class="btn btn-info" asp-area="Identity" asp-page="/Account/Login">Участвовать</a>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
-}
-else
-{
-
 }
