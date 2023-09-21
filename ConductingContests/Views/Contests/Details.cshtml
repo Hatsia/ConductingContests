@@ -1,0 +1,184 @@
+﻿@model ConductingContests.Models.Entities.Contest
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Конкурс</h1>
+
+<div>
+    <h4></h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">
+            Название:
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+        <dt class="col-sm-3">
+            Описание:
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt class="col-sm-3">
+            Дата начала:
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.StartDate)
+        </dd>
+        <dt class="col-sm-3">
+            Дата окончания:
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.EndDate)
+        </dd>
+        <dt class="col-sm-3">
+            Статус:
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.Status)
+        </dd>
+        <dt class="col-sm-3">
+            Почта победителя:
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.WinnerUserName)
+        </dd>
+        <dt class="col-sm-3">
+            Почта организатора:
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.User.UserName)
+        </dd>
+        <dt class="col-sm-3">
+            Название категории:
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.Category.Name)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Id">Редактировать</a> |
+    <a class="btn btn-outline-primary" asp-action="Index">Вернуться к списку</a> |
+    <button class="btn btn-primary" data-toggle="modal" data-target="#winnerModal" data-contest-id="@Model.Id">Выбрать победителя</button>
+</div>
+
+<div class="modal fade" id="winnerModal" tabindex="-1" role="dialog" aria-labelledby="winnerModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="winnerModalLabel">Выбор победителя</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" asp-controller="Contests" asp-action="SelectWinner">
+                <div class="modal-body">
+                    <label for="winner">Выберите победителя:</label>
+                    <input type="hidden" name="contestId" value="@Model.Id" />
+                    <select name="winnerId" class="form-control">
+                        <option value="">Выберите победителя</option>
+                        @foreach (var offeredService in Model.OfferedService)
+                        {
+                            <option value="@offeredService.User.Id">@offeredService.User.Email</option>
+                        }
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Подтвердить</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<hr />
+<h2>Заяки на участие</h2>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th class="col-3">
+                Имя пользователя
+            </th>
+            <th class="col-6">
+                Статус
+            </th>
+            <th class="col-3">
+                Действие
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.ParticipationRequest)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.User.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                <td class="d-flex">
+                    <form asp-controller="ParticipationRequests" asp-action="ApproveRequest" method="post" class="mr-2">
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <input type="hidden" name="modelId" value="@Model.Id" />
+                        <button class="btn btn-primary" type="submit">Одобрить</button>
+                    </form>
+                    <form asp-controller="ParticipationRequests" asp-action="RejectRequest" method="post">
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <input type="hidden" name="modelId" value="@Model.Id" />
+                        <button class="btn btn-danger" type="submit">Отклонить</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<hr />
+<h2>Предложения</h2>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th class="col-3">
+                Имя пользователя
+            </th>
+            <th class="col-3">
+                Цена
+            </th>
+            <th class="col-3">
+                Описание
+            </th>
+            <th class="col-3">
+                Действие
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.OfferedService)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.User.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td class="text-truncate" style="max-width: 50px;">
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td class="d-flex">
+                    <form asp-controller="OfferedServices" asp-action="Details" method="post">
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <button class="btn btn-primary" type="submit">Просмотреть условия</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

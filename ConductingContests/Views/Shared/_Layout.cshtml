@@ -1,17 +1,24 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@using ConductingContests.Models.Entities;
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - ConductingContests</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:400,500,600,700&display=swap" />
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ConductingContests</a>
+                <a href="/Home/Index">
+                    <img style="height: 55px; margin-right:16px" src="/images/Logo.png" alt="Логотип">
+                </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -19,10 +26,16 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Contests" asp-action="Index">Конкурсы</a>
                         </li>
+                        @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="ContestCategories" asp-action="Index">Категории</a>
+                            </li>
+                        }
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Contact">Контакты</a>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />
@@ -36,9 +49,17 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2023 - ConductingContests - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="border-top footer text-muted p-3">
+        <div class="container " style="line-height: 1">
+            <div class="d-flex justify-content-between">
+                <p>Телефон: <a href="tel:+375291234567">+375 29 1234567</a></p>
+                <p>Для вопросов: <a href="mailto:support@serviceсo.com">support@serviceсo.com</a></p>
+                <p>Отдел продаж: <a href="mailto:sales@serviceсo.com">sales@serviceсo.com</a></p>
+                <p>Вакансии: <a href="mailto:job@serviceсo.com">job@serviceсo.com</a></p>
+            </div>
+        </div>
+        <div class="container text-center" style="line-height: 1">
+            ServiceCo © 2023. All rights reserved.
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

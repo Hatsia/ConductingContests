@@ -120,6 +120,7 @@ namespace ConductingContests.Controllers
             var currentUserId = _userManager.GetUserId(User);
             var offeredService = _context.OfferedServices.FirstOrDefault(os => os.UserId == currentUserId && os.ContestId == Id);
 
+            var offeredService = await _context.OfferedServices.FindAsync(id);
             if (offeredService == null)
             {
                 return NotFound();
@@ -129,6 +130,8 @@ namespace ConductingContests.Controllers
             ViewData["UserId"] = _userManager.GetUserId(User);
             return View(offeredService);
         }
+
+        
 
         // POST: OfferedServices/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -140,16 +143,16 @@ namespace ConductingContests.Controllers
             if (ModelState.IsValid)
             {
                 if (file != null && file.Length > 0 && file.Length < 10 * 1024 * 1024)
-                {
+        {
                     var currentUserId = _userManager.GetUserId(User);
                     var offeredServiceFromDb = _context.OfferedServices.FirstOrDefault(os => os.UserId == currentUserId && os.ContestId == offeredService.Id);
 
                     string fileName = Path.GetFileName(file.FileName);
                     string filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/userFiles", fileName);
                     using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
+            {
                         await file.CopyToAsync(stream);
-                    }
+            }
 
                     offeredServiceFromDb.Name = offeredService.Name;
                     offeredServiceFromDb.Price = offeredService.Price;
@@ -160,12 +163,13 @@ namespace ConductingContests.Controllers
                     await _context.SaveChangesAsync();
                     
                     return RedirectToAction("Index", "Contests");
-                }
-                else
-                {
+                    }
+                    else
+                    {
                     // Handle invalid file size here
                     ViewData["FileSize"] = "Choose the correct file, filesize should be lower than 10 Mb";
                 }
+                return RedirectToAction(nameof(Index));
             }
             ViewData["ContestId"] = offeredService.ContestId;
             ViewData["UserId"] = _userManager.GetUserId(User);
